@@ -14,13 +14,16 @@ from fastapi.staticfiles import StaticFiles
 from rendering import _LATEX_OK, export_to_pdf_bytes
 from app.extract import extract_problems
 from app.variants import generate_variants
+from app.db import init_db
+from app.routes_db import router as db_router
 
 log = logging.getLogger("mathweb")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(message)s")
 logging.getLogger("fonttools").setLevel(logging.WARNING)
 logging.getLogger("fpdf").setLevel(logging.WARNING)
 
-app = FastAPI(title="수학 시험지 생성기", version="0.1")
+app = FastAPI(title="수학 시험지 생성기", version="0.2")
+app.include_router(db_router)
 
 # ── 정적 파일 ───────────────────────────────────────────────────────
 _STATIC = Path(__file__).parent.parent / "static"
@@ -29,6 +32,7 @@ app.mount("/static", StaticFiles(directory=_STATIC, html=True), name="static")
 
 @app.on_event("startup")
 async def _startup():
+    init_db()
     log.info("LaTeX 렌더링: %s", "pdflatex ✓" if _LATEX_OK else "matplotlib fallback")
     if not os.environ.get("ANTHROPIC_API_KEY"):
         log.warning("ANTHROPIC_API_KEY 미설정 — /extract, /variants 비활성")

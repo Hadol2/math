@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>문제 검색</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#d97706',
+            surface: '#fafaf9',
+            border: '#e5e7eb',
+          },
+          fontFamily: {
+            sans: ['"Noto Sans KR"', 'ui-sans-serif', 'system-ui'],
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <style>
+    .prob-card.selected { border-color: #d97706; box-shadow: 0 0 0 2px #d9770640; }
+    .prob-card .check-mark { display: none; }
+    .prob-card.selected .check-mark { display: flex; }
+  </style>
+</head>
+<body class="bg-surface text-gray-800 min-h-screen font-sans antialiased">
+
+  <!-- 헤더 -->
+  <header class="border-b border-border bg-white sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto px-6 h-14 flex items-center gap-6">
+      <span class="font-semibold text-gray-900 tracking-tight">수학 시험지 생성기</span>
+      <nav class="flex gap-4 text-sm text-gray-500">
+        <a href="/static/index.html" class="hover:text-gray-900">시험지 생성</a>
+        <a href="/static/db.html" class="text-accent font-medium">문제 검색</a>
+        <a href="/static/admin.html" class="hover:text-gray-900">기출 입력</a>
+      </nav>
+      <!-- 선택된 문제 카운터 + 시험지 구성 버튼 -->
+      <div class="ml-auto flex items-center gap-3">
+        <span id="sel-count" class="text-sm text-gray-500 hidden">
+          <span id="sel-num" class="font-semibold text-accent">0</span>문제 선택됨
+        </span>
+        <button id="btn-compose"
+                class="hidden px-4 py-1.5 rounded-lg bg-accent text-white text-sm font-medium
+                       hover:bg-amber-700 transition-colors">
+          시험지 구성 →
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    <div class="flex gap-6">
+
+      <!-- 왼쪽: 필터 패널 -->
+      <aside class="w-48 shrink-0 space-y-5">
+        <h2 class="text-sm font-semibold text-gray-700">필터</h2>
+
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">연도</label>
+          <select id="f-year"
+                  class="w-full border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+            <option value="">전체</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">시험</label>
+          <select id="f-exam"
+                  class="w-full border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+            <option value="">전체</option>
+            <option value="수능">수능</option>
+            <option value="6월">6월</option>
+            <option value="9월">9월</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">단원</label>
+          <select id="f-unit"
+                  class="w-full border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+            <option value="">전체</option>
+            <option value="수학I">수학I</option>
+            <option value="수학II">수학II</option>
+            <option value="미적분">미적분</option>
+            <option value="확률과통계">확률과통계</option>
+            <option value="기하">기하</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">난이도</label>
+          <select id="f-diff"
+                  class="w-full border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+            <option value="">전체</option>
+            <option value="상">상</option>
+            <option value="중">중</option>
+            <option value="하">하</option>
+          </select>
+        </div>
+
+        <button id="btn-search"
+                class="w-full py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors">
+          검색
+        </button>
+        <button id="btn-clear"
+                class="w-full py-2 rounded-lg border border-border text-sm hover:bg-gray-100 transition-colors">
+          필터 초기화
+        </button>
+      </aside>
+
+      <!-- 오른쪽: 문제 그리드 -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between mb-4">
+          <p id="result-count" class="text-sm text-gray-500">검색 중...</p>
+          <div class="flex gap-2">
+            <button id="btn-sel-all" class="text-xs text-gray-500 hover:text-gray-900">전체 선택</button>
+            <span class="text-gray-300">|</span>
+            <button id="btn-sel-none" class="text-xs text-gray-500 hover:text-gray-900">선택 해제</button>
+          </div>
+        </div>
+
+        <div id="prob-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3"></div>
+
+        <!-- 페이지네이션 -->
+        <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+
+        <!-- 빈 상태 -->
+        <div id="empty-state" class="hidden text-center py-20 text-gray-400">
+          <p class="text-4xl mb-3">📭</p>
+          <p class="text-sm">문제가 없습니다.</p>
+          <a href="/static/admin.html" class="text-sm text-accent hover:underline mt-1 inline-block">기출 입력하러 가기 →</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 시험지 구성 모달 -->
+  <div id="compose-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40" id="modal-backdrop"></div>
+    <div class="absolute inset-y-0 right-0 w-full max-w-lg bg-white shadow-2xl flex flex-col">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+        <h2 class="font-semibold text-gray-900">시험지 구성</h2>
+        <button id="modal-close" class="text-gray-400 hover:text-gray-700">✕</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">제목</label>
+            <input id="exam-title" type="text" placeholder="수학 시험지"
+                   class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">부제 (선택)</label>
+            <input id="exam-subtitle" type="text" placeholder="선택형 ○문항"
+                   class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500 mb-2">선택된 문제 <span id="modal-count" class="font-semibold">0</span>개 (드래그로 순서 변경)</p>
+          <div id="compose-list" class="space-y-2"></div>
+        </div>
+
+        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+          <input type="checkbox" id="chk-answers" class="accent-amber-600 w-4 h-4" />
+          정답지 포함
+        </label>
+      </div>
+
+      <div class="px-6 py-4 border-t border-border">
+        <button id="btn-gen-pdf"
+                class="w-full py-2.5 rounded-lg bg-accent text-white text-sm font-semibold
+                       hover:bg-amber-700 transition-colors disabled:opacity-40">
+          PDF 생성
+        </button>
+        <div id="pdf-spinner" class="hidden text-center text-sm text-gray-500 mt-2">PDF 생성 중...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/db.js"></script>
+</body>
+</html>

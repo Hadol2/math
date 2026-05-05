@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기출문제 입력</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#d97706',
+            surface: '#fafaf9',
+            border: '#e5e7eb',
+          },
+          fontFamily: {
+            sans: ['"Noto Sans KR"', 'ui-sans-serif', 'system-ui'],
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="bg-surface text-gray-800 min-h-screen font-sans antialiased">
+
+  <!-- 헤더 -->
+  <header class="border-b border-border bg-white sticky top-0 z-20">
+    <div class="max-w-5xl mx-auto px-6 h-14 flex items-center gap-6">
+      <span class="font-semibold text-gray-900 tracking-tight">수학 시험지 생성기</span>
+      <nav class="flex gap-4 text-sm text-gray-500">
+        <a href="/static/index.html" class="hover:text-gray-900">시험지 생성</a>
+        <a href="/static/db.html" class="hover:text-gray-900">문제 검색</a>
+        <a href="/static/admin.html" class="text-accent font-medium">기출 입력</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8 space-y-8">
+    <h1 class="text-lg font-semibold text-gray-900">기출문제 입력</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- 왼쪽: 이미지 업로드 + 크롭 -->
+      <div class="space-y-4">
+        <h2 class="text-sm font-semibold text-gray-700">① 이미지 업로드 및 크롭</h2>
+
+        <label id="drop-zone"
+               class="flex flex-col items-center justify-center gap-2 border-2 border-dashed
+                      border-border rounded-xl p-8 cursor-pointer hover:border-accent
+                      hover:bg-amber-50 transition-colors">
+          <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+          </svg>
+          <span class="text-sm text-gray-500">이미지 클릭 또는 드래그</span>
+          <span class="text-xs text-gray-400">JPG, PNG (수능 문제 페이지 스캔)</span>
+          <input type="file" id="file-input" accept="image/*" class="hidden" />
+        </label>
+
+        <!-- 크롭퍼 영역 -->
+        <div id="cropper-wrap" class="hidden">
+          <div class="border border-border rounded-xl overflow-hidden bg-gray-100" style="max-height:480px">
+            <img id="crop-img" src="" alt="crop" class="block max-w-full" />
+          </div>
+          <div class="flex gap-2 mt-3">
+            <button id="btn-crop" class="px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors">
+              영역 확정
+            </button>
+            <button id="btn-reset-crop" class="px-4 py-2 rounded-lg border border-border text-sm hover:bg-gray-100 transition-colors">
+              다시 선택
+            </button>
+          </div>
+        </div>
+
+        <!-- 크롭 미리보기 -->
+        <div id="preview-wrap" class="hidden space-y-2">
+          <p class="text-xs text-gray-500">크롭된 문제 이미지</p>
+          <img id="preview-img" src="" alt="preview"
+               class="border border-border rounded-lg max-w-full" />
+        </div>
+      </div>
+
+      <!-- 오른쪽: 메타데이터 입력 -->
+      <div class="space-y-4">
+        <h2 class="text-sm font-semibold text-gray-700">② 메타데이터 입력</h2>
+
+        <div class="bg-white border border-border rounded-xl p-5 space-y-4">
+
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">연도 *</label>
+              <input id="f-year" type="number" min="1994" max="2030" placeholder="2024"
+                     class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">시험 *</label>
+              <select id="f-exam-type"
+                      class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+                <option value="">선택</option>
+                <option value="수능">수능</option>
+                <option value="6월">6월</option>
+                <option value="9월">9월</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">번호 *</label>
+              <input id="f-number" type="number" min="1" max="30" placeholder="1"
+                     class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">배점</label>
+              <input id="f-score" type="number" min="1" max="10" value="3"
+                     class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">정답</label>
+              <input id="f-answer" type="text" placeholder="예) 3  또는  ②"
+                     class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">단원</label>
+              <select id="f-unit"
+                      class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+                <option value="">선택 안 함</option>
+                <option value="수학I">수학I</option>
+                <option value="수학II">수학II</option>
+                <option value="미적분">미적분</option>
+                <option value="확률과통계">확률과통계</option>
+                <option value="기하">기하</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">난이도</label>
+              <select id="f-difficulty"
+                      class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+                <option value="">선택 안 함</option>
+                <option value="상">상</option>
+                <option value="중">중</option>
+                <option value="하">하</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" id="f-has-figure" class="accent-amber-600 w-4 h-4" />
+              그래프·도형 포함 (변형 시 이미지 재추출 필요)
+            </label>
+          </div>
+
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">메모 (선택)</label>
+            <input id="f-notes" type="text" placeholder="예) 킬러 문제, 2022개정 이전"
+                   class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+          </div>
+
+          <!-- 고급: 텍스트/LaTeX -->
+          <details class="text-sm">
+            <summary class="cursor-pointer text-gray-500 hover:text-gray-700 select-none">텍스트/LaTeX (선택 — 입력 시 변형 품질 향상)</summary>
+            <div class="mt-3 space-y-3">
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">문제 본문 텍스트</label>
+                <textarea id="f-text" rows="3" placeholder="문제 지문 텍스트"
+                          class="w-full border border-border rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-accent/40"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">수식 (LaTeX)</label>
+                <input id="f-latex" type="text" placeholder="\frac{x^2+1}{x-1}"
+                       class="w-full border border-border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/40" />
+              </div>
+            </div>
+          </details>
+
+          <button id="btn-save"
+                  class="w-full py-2.5 rounded-lg bg-accent text-white text-sm font-semibold
+                         hover:bg-amber-700 transition-colors disabled:opacity-40">
+            저장
+          </button>
+
+          <div id="save-msg" class="hidden text-sm text-center py-1 rounded-lg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 최근 저장 문제 -->
+    <div>
+      <h2 class="text-sm font-semibold text-gray-700 mb-3">최근 저장된 문제</h2>
+      <div id="recent-list" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+  <script src="/static/admin.js"></script>
+</body>
+</html>

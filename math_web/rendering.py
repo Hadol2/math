@@ -17,6 +17,8 @@ import base64, hashlib, io, json, logging, os, pickle, re, shutil, subprocess
 
 log = logging.getLogger(__name__)
 
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # ── 번들 폰트 등록 (fonts/ 디렉터리) ───────────────────────────────
 _FONT_DIR = os.path.join(os.path.dirname(__file__), 'fonts')
 for _ttf in glob.glob(os.path.join(_FONT_DIR, '*.ttf')):
@@ -557,7 +559,54 @@ class ExamPDF(FPDF):
         else:
             return 14 + box + fig + 25
 
+    def _add_problem_image(self, num: int, image_path: str, score: int):
+        """기출 이미지를 PDF에 직접 임베드."""
+        from PIL import Image as PILImage
+
+        fs_path = os.path.join(_BASE_DIR, image_path.lstrip('/'))
+        if not os.path.exists(fs_path):
+            self.set_font(self._krf, size=11)
+            self.multi_cell(0, 7, f"{num}. [이미지 없음: {image_path}]",
+                            new_x='LMARGIN', new_y='NEXT')
+            return
+
+        try:
+            img = PILImage.open(fs_path)
+            dpi = 150
+            w_mm = img.width  / dpi * 25.4
+            h_mm = img.height / dpi * 25.4
+            max_w = float(_COL_W)
+            max_h = 120.0
+            scale = min(
+                max_w / w_mm if w_mm > max_w else 1.0,
+                max_h / h_mm if h_mm > max_h else 1.0,
+            )
+            w_mm *= scale
+            h_mm *= scale
+
+            self._need_space(h_mm + 12)
+
+            # 번호 + 배점 헤더
+            self.set_font(self._krf, size=11)
+            self.cell(0, 6, f"{num}.  ({score}점)", new_x='LMARGIN', new_y='NEXT')
+
+            self.image(fs_path, x=self.l_margin, y=self.get_y(), w=w_mm, h=h_mm)
+            self.set_y(self.get_y() + h_mm + 4)
+            self.set_x(self.l_margin)
+        except Exception as e:
+            log.warning("이미지 임베드 실패 %s: %s", fs_path, e)
+            self.set_font(self._krf, size=11)
+            self.multi_cell(0, 7, f"{num}. [이미지 오류]",
+                            new_x='LMARGIN', new_y='NEXT')
+
     def add_problem(self, num: int, prob: dict):
+        # 기출 이미지가 있으면 이미지 직접 임베드
+        image_path = prob.get('image_path', '').strip()
+        if image_path:
+            self._add_problem_image(num, image_path, prob.get('score', 3))
+            self.ln(2)
+            return
+
         self._need_space(self._min_height_needed(prob))
 
         score_str = f"({prob['score']}점)"

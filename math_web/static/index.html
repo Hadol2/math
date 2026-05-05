@@ -30,10 +30,15 @@
 
   <!-- 헤더 -->
   <header class="border-b border-border bg-white sticky top-0 z-10">
-    <div class="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
+    <div class="max-w-4xl mx-auto px-6 h-14 flex items-center gap-6">
       <span class="font-semibold text-gray-900 tracking-tight">수학 시험지 생성기</span>
+      <nav class="flex gap-4 text-sm text-gray-500">
+        <a href="/static/index.html" class="text-accent font-medium">시험지 생성</a>
+        <a href="/static/db.html" class="hover:text-gray-900">문제 검색</a>
+        <a href="/static/admin.html" class="hover:text-gray-900">기출 입력</a>
+      </nav>
       <a href="#" id="btn-download-pdf"
-         class="hidden px-4 py-1.5 rounded-lg bg-accent text-white text-sm font-medium
+         class="hidden ml-auto px-4 py-1.5 rounded-lg bg-accent text-white text-sm font-medium
                 hover:bg-amber-700 transition-colors">
         PDF 다운로드
       </a>

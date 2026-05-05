@@ -3,9 +3,17 @@ __pycache__/
 *.pyc
 *.pyo
 *.pdf
-*.png
-*.jpg
-*.jpeg
 *.pkl
 fonts/
 ~/
+
+# DB 및 업로드 이미지 — 서버에서만 유지
+data/*.db
+static/problem_images/*.png
+static/problem_images/*.jpg
+static/problem_images/*.jpeg
+static/problem_images/*.webp
+
+# .gitkeep은 추적
+!data/.gitkeep
+!static/problem_images/.gitkeep
