@@ -1,0 +1,18 @@
+/* 추가 스타일 — Tailwind CDN으로 커버 안 되는 부분 */
+
+textarea {
+  field-sizing: content;
+  min-height: 2.5rem;
+}
+
+.problem-card {
+  transition: box-shadow 0.15s;
+}
+.problem-card:focus-within {
+  box-shadow: 0 0 0 2px #d9770640;
+}
+
+/* 스크롤바 */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }

@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.pkl
+fonts/
+~/
