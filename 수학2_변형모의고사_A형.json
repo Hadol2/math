@@ -1,0 +1,348 @@
+{
+  "title": "수학Ⅱ 변형 모의고사 [A형]",
+  "subtitle": "고3 / 함수의 극한과 연속 · 미분",
+  "problems": [
+    {
+      "number": 1,
+      "type": "선택형",
+      "score": 3,
+      "text": "lim(x→3) (x²-9)/(x-3) 의 값은?",
+      "latex": "$\\lim_{x \\to 3} \\dfrac{x^2-9}{x-3}$",
+      "choices": [
+        "①4",
+        "②5",
+        "③6",
+        "④7",
+        "⑤8"
+      ],
+      "answer": "③",
+      "figure_spec": null
+    },
+    {
+      "number": 2,
+      "type": "선택형",
+      "score": 3,
+      "text": "함수 f(x) = { x²+1  (x≠2) ,  k  (x=2) } 가 x=2에서 연속일 때, 상수 k의 값은?",
+      "latex": "$f(x)=\\begin{cases}x^2+1 & (x\\neq 2)\\\\k & (x=2)\\end{cases}$",
+      "choices": [
+        "①3",
+        "②4",
+        "③5",
+        "④6",
+        "⑤7"
+      ],
+      "answer": "③",
+      "figure_spec": null
+    },
+    {
+      "number": 3,
+      "type": "선택형",
+      "score": 4,
+      "text": "lim(x→0) (3x)/(sin 2x) 의 값은?",
+      "latex": "$\\lim_{x \\to 0} \\dfrac{3x}{\\sin 2x}$",
+      "choices": [
+        "①1/2",
+        "②2/3",
+        "③3/2",
+        "④2",
+        "⑤3"
+      ],
+      "answer": "③",
+      "figure_spec": null
+    },
+    {
+      "number": 4,
+      "type": "선택형",
+      "score": 4,
+      "text": "lim(x→∞) (3x²+2x-1)/(2x²-x+4) 의 값은?",
+      "latex": "$\\lim_{x \\to \\infty} \\dfrac{3x^2+2x-1}{2x^2-x+4}$",
+      "choices": [
+        "①1",
+        "②3/2",
+        "③2",
+        "④5/2",
+        "⑤3"
+      ],
+      "answer": "②",
+      "figure_spec": null
+    },
+    {
+      "number": 5,
+      "type": "선택형",
+      "score": 4,
+      "text": "함수 f(x) = { ax+3  (-1≤x<0) , 3x²+2ax+b  (0≤x<1) } 가 모든 실수에서 연속일 때, a+b의 값은? (단, f(x)는 주기 2인 주기함수이다.)",
+      "latex": "$f(x)=\\begin{cases}ax+3 & (-1\\le x<0)\\\\3x^2+2ax+b & (0\\le x<1)\\end{cases}$",
+      "choices": [
+        "①-2",
+        "②-1",
+        "③0",
+        "④1",
+        "⑤2"
+      ],
+      "answer": "③",
+      "figure_spec": null
+    },
+    {
+      "number": 6,
+      "type": "선택형",
+      "score": 4,
+      "text": "다항함수 f(x)에 대하여 lim(x→2) [f(x)-4]/(x-2) = 3 일 때, lim(x→2) [f(x)²-16]/[x-2] 의 값은?",
+      "latex": "$\\lim_{x \\to 2}\\dfrac{f(x)-4}{x-2}=3$",
+      "choices": [
+        "①18",
+        "②20",
+        "③22",
+        "④24",
+        "⑤26"
+      ],
+      "answer": "④",
+      "figure_spec": null
+    },
+    {
+      "number": 7,
+      "type": "선택형",
+      "score": 4,
+      "text": "삼차함수 f(x) = x³ - 6x² + 9x + 1에 대하여 [보기]에서 옳은 것을 모두 고른 것은?\n[보기]\nㄱ. f'(1)=0이다.\nㄴ. 함수 f(x)는 x=3에서 극솟값을 갖는다.\nㄷ. f(0)+f(3)=2이다.",
+      "latex": "$f(x)=x^3-6x^2+9x+1$",
+      "choices": [
+        "①ㄱ",
+        "②ㄴ",
+        "③ㄱ,ㄴ",
+        "④ㄴ,ㄷ",
+        "⑤ㄱ,ㄴ,ㄷ"
+      ],
+      "answer": "⑤",
+      "figure_spec": null
+    },
+    {
+      "number": 8,
+      "type": "선택형",
+      "score": 4,
+      "text": "곡선 y=x³ 위의 점 (1,1)에서의 접선의 방정식이 y=ax+b일 때, a-b의 값은?",
+      "latex": "$y=x^3$",
+      "choices": [
+        "①1",
+        "②2",
+        "③3",
+        "④4",
+        "⑤5"
+      ],
+      "answer": "②",
+      "figure_spec": null
+    },
+    {
+      "number": 9,
+      "type": "선택형",
+      "score": 5,
+      "text": "함수 f(x)=x³-3x²-9x+5의 극댓값과 극솟값의 합은?",
+      "latex": "$f(x)=x^3-3x^2-9x+5$",
+      "choices": [
+        "①-16",
+        "②-12",
+        "③-8",
+        "④-4",
+        "⑤0"
+      ],
+      "answer": "③",
+      "figure_spec": null
+    },
+    {
+      "number": 10,
+      "type": "선택형",
+      "score": 5,
+      "text": "닫힌구간 [-1,3]에서 함수 f(x)=x³-3x+2의 최댓값 M과 최솟값 m의 합 M+m의 값은?",
+      "latex": "$f(x)=x^3-3x+2,\\quad x\\in[-1,3]$",
+      "choices": [
+        "①18",
+        "②20",
+        "③22",
+        "④24",
+        "⑤26"
+      ],
+      "answer": "②",
+      "figure_spec": null
+    },
+    {
+      "number": 11,
+      "type": "선택형",
+      "score": 5,
+      "text": "실수 전체의 집합에서 정의된 두 함수 f, g가\nf(x) = { 3  (x>0), 1  (x=0), -1  (x<0) }, g(x)=cos πx\n일 때, [보기]에서 옳은 것을 모두 고른 것은?\n[보기]\nㄱ. f(f(x))는 상수함수이다.\nㄴ. lim(x→0) f(g(x))의 값이 존재한다.\nㄷ. g(f(x))는 x=0에서 연속이다.",
+      "latex": "$f(x)=\\begin{cases}3&(x>0)\\\\1&(x=0)\\\\-1&(x<0)\\end{cases},\\;g(x)=\\cos\\pi x$",
+      "choices": [
+        "①ㄴ",
+        "②ㄷ",
+        "③ㄱ,ㄴ",
+        "④ㄱ,ㄷ",
+        "⑤ㄴ,ㄷ"
+      ],
+      "answer": "③",
+      "figure_spec": null
+    },
+    {
+      "number": 12,
+      "type": "선택형",
+      "score": 5,
+      "text": "최고차항의 계수가 1인 삼차함수 f(x)와 일차함수 g(x)가 다음 조건을 만족시킨다.\n(가) g(1)=0\n(나) lim(x→n) f(x)/g(x) = (n-2)(n-3)  (n=1, 2, 3, 4)\ng(5)의 값은?",
+      "latex": "$(\\text{나})\\;\\lim_{x\\to n}\\dfrac{f(x)}{g(x)}=(n-2)(n-3)$",
+      "choices": [
+        "①4",
+        "②6",
+        "③8",
+        "④10",
+        "⑤12"
+      ],
+      "answer": "③",
+      "figure_spec": null
+    },
+    {
+      "number": 13,
+      "type": "선택형",
+      "score": 5,
+      "text": "함수 f(x) = { x+3  (x≤a), x²-x  (x>a) } 에 대하여 함수 f(x)g(x)가 실수 전체의 집합에서 연속이 되도록 하는 모든 실수 a의 값의 곱을 구하면? (단, g(x)=x-(2a+3))",
+      "latex": "$f(x)=\\begin{cases}x+3&(x\\le a)\\\\x^2-x&(x>a)\\end{cases}$",
+      "choices": [
+        "①-24",
+        "②-18",
+        "③-12",
+        "④-8",
+        "⑤-4"
+      ],
+      "answer": "②",
+      "figure_spec": null
+    },
+    {
+      "number": 14,
+      "type": "선택형",
+      "score": 5,
+      "text": "최고차항의 계수가 1인 이차함수 f(x)가\nlim(x→a) [f(x)-(x-a)]/(f(x)+(x-a)) = 1/3\n을 만족시킨다. 방정식 f(x)=0의 두 근을 α, β라 할 때, |α-β|의 값은? (단, a는 상수이다.)",
+      "latex": "$\\lim_{x\\to a}\\dfrac{f(x)-(x-a)}{f(x)+(x-a)}=\\dfrac{1}{3}$",
+      "choices": [
+        "①1",
+        "②2",
+        "③3",
+        "④4",
+        "⑤5"
+      ],
+      "answer": "②",
+      "figure_spec": null
+    },
+    {
+      "number": 15,
+      "type": "서술형",
+      "score": 6,
+      "text": "다항함수 f(x)가\nlim(x→∞) [x³f(1/x)-1]/(x³+x) = 5,  lim(x→-1) f(x)/(x²+x-2) = 1/3\n을 만족시킬 때, f(2)의 값을 구하시오.",
+      "latex": "$\\lim_{x\\to\\infty}\\dfrac{x^3f\\!\\left(\\tfrac{1}{x}\\right)-1}{x^3+x}=5,\\quad\\lim_{x\\to-1}\\dfrac{f(x)}{x^2+x-2}=\\dfrac{1}{3}$",
+      "choices": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "answer": "f(2)=17",
+      "figure_spec": null
+    },
+    {
+      "number": 16,
+      "type": "서술형",
+      "score": 6,
+      "text": "삼차함수 f(x)가 다음 조건을 만족시킨다.\n(가) 모든 실수 x에 대하여 f(-x)=-f(x)이다.\n(나) f(1)=4\n(다) 1<f'(1)<5\n함수 y=f(x)의 극댓값은 m이다. m²의 값을 구하시오.",
+      "latex": "$(\\text{가})\\;f(-x)=-f(x),\\quad(\\text{나})\\;f(1)=4,\\quad(\\text{다})\\;1<f'(1)<5$",
+      "choices": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "answer": "m²=16",
+      "figure_spec": null
+    },
+    {
+      "number": 17,
+      "type": "서술형",
+      "score": 6,
+      "text": "서로 다른 두 다항함수 f(x), g(x)에 대하여 함수\ny = { f(x)  (x<a), g(x)  (x≥a) }\n가 모든 실수에서 연속이 되도록 하는 상수 a의 개수를 N(f,g)라 하자.\n[보기]에서 항상 옳은 것을 모두 고르시오.\nㄱ. f(x)=x², g(x)=x+2이면 N(f,g)=2이다.\nㄴ. N(f,g)=N(g,f)\nㄷ. h(x)=x³이면 N(f,g)=N(h∘f, h∘g)이다.",
+      "latex": "$y=\\begin{cases}f(x)&(x<a)\\\\g(x)&(x\\ge a)\\end{cases}$",
+      "choices": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "answer": "ㄱ, ㄷ",
+      "figure_spec": null
+    },
+    {
+      "number": 18,
+      "type": "서술형",
+      "score": 6,
+      "text": "함수 f(x) = { -x+4  (x≤0), -½x  (x>0) } 의 그래프가 그림과 같다. 함수 g(x)=f(x){f(x)+k}가 x=0에서 연속이 되도록 하는 상수 k의 값을 구하시오.",
+      "latex": "$f(x)=\\begin{cases}-x+4&(x\\le 0)\\\\-\\tfrac{1}{2}x&(x>0)\\end{cases}$",
+      "choices": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "answer": "k=-4",
+      "figure_spec": {
+        "type": "function",
+        "functions": [
+          {
+            "expr": "-x+4",
+            "label": "x≤0"
+          },
+          {
+            "expr": "-0.5*x",
+            "label": "x>0"
+          }
+        ],
+        "xrange": [
+          -3,
+          4
+        ],
+        "yrange": [
+          -2,
+          6
+        ],
+        "axes": true,
+        "grid": false
+      }
+    },
+    {
+      "number": 19,
+      "type": "서술형",
+      "score": 8,
+      "text": "최고차항의 계수가 1인 삼차함수 f(x)에 대하여 함수 g(x)를\ng(x) = { (f(x+3){f(x)+1}) / f(x)  (f(x)≠0), 3  (f(x)=0) }\n이라 하자. lim(x→2) g(x) = g(2)-1일 때, g(4)의 값을 구하시오.",
+      "latex": "$g(x)=\\begin{cases}\\dfrac{f(x+3)\\{f(x)+1\\}}{f(x)}&(f(x)\\neq0)\\\\3&(f(x)=0)\\end{cases}$",
+      "choices": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "answer": "g(4)=16",
+      "figure_spec": null
+    },
+    {
+      "number": 20,
+      "type": "서술형",
+      "score": 8,
+      "text": "두 자연수 a, b에 대하여 함수 f(x)는\nf(x) = { 2x³-6x+1  (x≤2), a(x-2)(x-b)+9  (x>2) }\n이다. 실수 t에 대하여 함수 y=f(x)의 그래프와 직선 y=t가 만나는 점의 개수를 g(t)라 하자.\ng(k)+lim(t→k-) g(t)+lim(t→k+) g(t)=9\n를 만족시키는 실수 k의 개수가 1이 되도록 하는 두 자연수 a, b의 순서쌍 (a,b)에 대하여 a+b의 최댓값을 구하시오.",
+      "latex": "$f(x)=\\begin{cases}2x^3-6x+1&(x\\le2)\\\\a(x-2)(x-b)+9&(x>2)\\end{cases}$",
+      "choices": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "answer": "a+b 최댓값=52",
+      "figure_spec": null
+    }
+  ]
+}
