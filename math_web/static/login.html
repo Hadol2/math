@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로그인 — 수학 시험지 생성기</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { accent: '#d97706', surface: '#fafaf9', border: '#e5e7eb' },
+          fontFamily: { sans: ['"Noto Sans KR"', 'ui-sans-serif', 'system-ui'] },
+        },
+      },
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="bg-surface text-gray-800 min-h-screen font-sans antialiased flex items-center justify-center px-4">
+
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-8">
+      <h1 class="text-xl font-semibold text-gray-900">수학 시험지 생성기</h1>
+      <p class="text-sm text-gray-500 mt-1">AI 기반 기출 변형 문제 생성 서비스</p>
+    </div>
+
+    <!-- 탭 -->
+    <div class="flex border border-border rounded-xl overflow-hidden mb-6 bg-white">
+      <button id="tab-login"
+              class="flex-1 py-2.5 text-sm font-medium tab-active"
+              onclick="switchTab('login')">로그인</button>
+      <button id="tab-signup"
+              class="flex-1 py-2.5 text-sm font-medium tab-inactive"
+              onclick="switchTab('signup')">회원가입</button>
+    </div>
+
+    <!-- 로그인 폼 -->
+    <form id="form-login" class="bg-white border border-border rounded-xl p-6 space-y-4">
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">이메일</label>
+        <input name="email" type="email" required autocomplete="email"
+               class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
+               placeholder="you@example.com" />
+      </div>
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">비밀번호</label>
+        <input name="password" type="password" required autocomplete="current-password"
+               class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
+               placeholder="••••••••" />
+      </div>
+      <p id="login-error" class="hidden text-xs text-red-500"></p>
+      <button type="submit"
+              class="w-full py-2.5 rounded-lg bg-accent text-white text-sm font-medium hover:bg-amber-700 transition-colors">
+        로그인
+      </button>
+    </form>
+
+    <!-- 회원가입 폼 -->
+    <form id="form-signup" class="hidden bg-white border border-border rounded-xl p-6 space-y-4">
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">이름</label>
+        <input name="name" type="text" required autocomplete="name"
+               class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
+               placeholder="홍길동" />
+      </div>
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">이메일</label>
+        <input name="email" type="email" required autocomplete="email"
+               class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
+               placeholder="you@example.com" />
+      </div>
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">비밀번호 <span class="text-gray-400">(8자 이상)</span></label>
+        <input name="password" type="password" required autocomplete="new-password"
+               class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
+               placeholder="••••••••" />
+      </div>
+      <p id="signup-error" class="hidden text-xs text-red-500"></p>
+      <button type="submit"
+              class="w-full py-2.5 rounded-lg bg-accent text-white text-sm font-medium hover:bg-amber-700 transition-colors">
+        가입하기
+      </button>
+      <p class="text-xs text-center text-gray-400">가입 시 서비스 이용약관에 동의하는 것으로 간주합니다</p>
+    </form>
+  </div>
+
+  <style>
+    .tab-active   { background: #d97706; color: white; }
+    .tab-inactive { background: white; color: #6b7280; }
+    .tab-inactive:hover { background: #f9fafb; }
+  </style>
+
+  <script>
+    function switchTab(tab) {
+      const isLogin = tab === 'login';
+      document.getElementById('form-login').classList.toggle('hidden', !isLogin);
+      document.getElementById('form-signup').classList.toggle('hidden', isLogin);
+      document.getElementById('tab-login').className =
+        'flex-1 py-2.5 text-sm font-medium ' + (isLogin ? 'tab-active' : 'tab-inactive');
+      document.getElementById('tab-signup').className =
+        'flex-1 py-2.5 text-sm font-medium ' + (!isLogin ? 'tab-active' : 'tab-inactive');
+    }
+
+    async function postForm(url, formEl, errorEl) {
+      errorEl.classList.add('hidden');
+      const fd = new FormData(formEl);
+      try {
+        const res = await fetch(url, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok) { errorEl.textContent = data.detail || '오류가 발생했습니다'; errorEl.classList.remove('hidden'); return; }
+        // 성공 → redirect
+        const next = new URLSearchParams(location.search).get('next') || '/static/index.html';
+        location.href = next;
+      } catch (e) {
+        errorEl.textContent = '네트워크 오류가 발생했습니다'; errorEl.classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('form-login').addEventListener('submit', e => {
+      e.preventDefault();
+      postForm('/auth/login', e.target, document.getElementById('login-error'));
+    });
+
+    document.getElementById('form-signup').addEventListener('submit', e => {
+      e.preventDefault();
+      postForm('/auth/signup', e.target, document.getElementById('signup-error'));
+    });
+
+    // 이미 로그인된 경우 리디렉트
+    fetch('/auth/me').then(r => {
+      if (r.ok) location.href = new URLSearchParams(location.search).get('next') || '/static/index.html';
+    });
+  </script>
+</body>
+</html>

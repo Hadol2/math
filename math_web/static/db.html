@@ -24,11 +24,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/style.css" />
-  <style>
-    .prob-card.selected { border-color: #d97706; box-shadow: 0 0 0 2px #d9770640; }
-    .prob-card .check-mark { display: none; }
-    .prob-card.selected .check-mark { display: flex; }
-  </style>
 </head>
 <body class="bg-surface text-gray-800 min-h-screen font-sans antialiased">
 
@@ -51,6 +46,7 @@
                        hover:bg-amber-700 transition-colors">
           시험지 구성 →
         </button>
+        <div id="auth-area" class="flex items-center gap-3 text-sm"></div>
       </div>
     </div>
   </header>
@@ -187,5 +183,6 @@
   </div>
 
   <script src="/static/db.js"></script>
+  <script src="/static/auth-header.js"></script>
 </body>
 </html>

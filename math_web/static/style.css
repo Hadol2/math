@@ -16,3 +16,8 @@ textarea {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+
+/* db.html 카드 선택 */
+.prob-card.selected { outline: 2px solid #d97706; }
+.prob-card .check-mark { display: none; }
+.prob-card.selected .check-mark { display: flex; }

@@ -8,22 +8,25 @@ load_dotenv(Path(__file__).parent.parent / ".env")
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile, status
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Response, UploadFile, status
 from fastapi.staticfiles import StaticFiles
 
 from rendering import _LATEX_OK, export_to_pdf_bytes
 from app.extract import extract_problems
 from app.variants import generate_variants
-from app.db import init_db
+from app.db import init_db, increment_variants
 from app.routes_db import router as db_router
+from app.routes_auth import router as auth_router
+from app.auth import FREE_DAILY_LIMIT, get_current_user_optional
 
 log = logging.getLogger("mathweb")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(message)s")
 logging.getLogger("fonttools").setLevel(logging.WARNING)
 logging.getLogger("fpdf").setLevel(logging.WARNING)
 
-app = FastAPI(title="수학 시험지 생성기", version="0.2")
+app = FastAPI(title="수학 시험지 생성기", version="0.3")
 app.include_router(db_router)
+app.include_router(auth_router)
 
 # ── 정적 파일 ───────────────────────────────────────────────────────
 _STATIC = Path(__file__).parent.parent / "static"
@@ -76,8 +79,20 @@ async def extract(file: UploadFile = File(...)):
 async def variants(
     problem_json: str = Form(...),
     n: int = Form(3),
+    user=Depends(get_current_user_optional),
 ):
     """단일 문제 JSON → n개 변형 문제 리스트."""
+    if user is None:
+        raise HTTPException(status_code=401, detail="변형 생성은 로그인 후 이용 가능합니다")
+
+    if user["plan"] == "free":
+        count = increment_variants(user["id"])
+        if count > FREE_DAILY_LIMIT:
+            raise HTTPException(
+                status_code=429,
+                detail=f"오늘 변형 생성 횟수({FREE_DAILY_LIMIT}회)를 초과했습니다. Pro 플랜으로 업그레이드하세요.",
+            )
+
     try:
         problem = json.loads(problem_json)
     except json.JSONDecodeError as e:

@@ -1,4 +1,4 @@
-"""SQLite DB 헬퍼 — 기출문제 저장/조회."""
+"""SQLite DB 헬퍼 — 기출문제 저장/조회 + 사용자 인증."""
 
 import json
 import sqlite3
@@ -13,6 +13,17 @@ EXAM_TYPES = ["수능", "6월", "9월"]
 
 _SCHEMA = """
 PRAGMA journal_mode=WAL;
+
+CREATE TABLE IF NOT EXISTS users (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    email         TEXT    NOT NULL UNIQUE,
+    password_hash TEXT    NOT NULL,
+    name          TEXT    NOT NULL,
+    plan          TEXT    NOT NULL DEFAULT 'free',
+    variants_today INTEGER NOT NULL DEFAULT 0,
+    reset_date    TEXT    NOT NULL DEFAULT (date('now')),
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+);
 
 CREATE TABLE IF NOT EXISTS problems (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,6 +43,7 @@ CREATE TABLE IF NOT EXISTS problems (
     unit        TEXT,
     difficulty  TEXT    CHECK(difficulty IN ('상','중','하')),
     notes       TEXT,
+    owner_id    INTEGER REFERENCES users(id),
     created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -52,6 +64,10 @@ def init_db() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with _conn() as con:
         con.executescript(_SCHEMA)
+        # 기존 DB 마이그레이션 — 컬럼 없으면 추가
+        cols = {r[1] for r in con.execute("PRAGMA table_info(problems)").fetchall()}
+        if "owner_id" not in cols:
+            con.execute("ALTER TABLE problems ADD COLUMN owner_id INTEGER REFERENCES users(id)")
 
 
 # ── CRUD ──────────────────────────────────────────────────────────────
@@ -155,3 +171,46 @@ def _row_to_dict(row: sqlite3.Row) -> dict:
             pass
     d["has_figure"] = bool(d.get("has_figure", 0))
     return d
+
+
+# ── 사용자 CRUD ────────────────────────────────────────────────────────
+
+def create_user(name: str, email: str, password_hash: str) -> int:
+    with _conn() as con:
+        cur = con.execute(
+            "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+            (name, email, password_hash),
+        )
+        return cur.lastrowid
+
+
+def get_user(user_id: int) -> Optional[dict]:
+    with _conn() as con:
+        row = con.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def get_user_by_email(email: str) -> Optional[dict]:
+    with _conn() as con:
+        row = con.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+    return dict(row) if row else None
+
+
+def increment_variants(user_id: int) -> int:
+    """오늘 변형 생성 횟수를 1 증가하고 현재 값 반환. 날짜 바뀌면 자동 리셋."""
+    with _conn() as con:
+        row = con.execute(
+            "SELECT variants_today, reset_date FROM users WHERE id=?", (user_id,)
+        ).fetchone()
+        if not row:
+            return 0
+        today = __import__("datetime").date.today().isoformat()
+        if row["reset_date"] != today:
+            con.execute(
+                "UPDATE users SET variants_today=1, reset_date=? WHERE id=?",
+                (today, user_id),
+            )
+            return 1
+        new_count = row["variants_today"] + 1
+        con.execute("UPDATE users SET variants_today=? WHERE id=?", (new_count, user_id))
+        return new_count
