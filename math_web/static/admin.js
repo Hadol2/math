@@ -68,6 +68,12 @@ btnReset.addEventListener('click', () => {
 
 // ── 저장 ─────────────────────────────────────────────────────────────
 btnSave.addEventListener('click', async () => {
+  const authRes = await fetch('/auth/me');
+  if (!authRes.ok) {
+    location.href = '/static/login.html?next=' + encodeURIComponent(location.pathname);
+    return;
+  }
+
   const year     = document.getElementById('f-year').value;
   const examType = document.getElementById('f-exam-type').value;
   const number   = document.getElementById('f-number').value;

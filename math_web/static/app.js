@@ -148,9 +148,9 @@ async function variantOne(idx) {
     form.append('problem_json', JSON.stringify(problems[idx]));
     form.append('n', '3');
     const res = await fetch('/variants', { method: 'POST', body: form });
+    if (res.status === 401) { location.href = '/static/login.html?next=' + encodeURIComponent(location.pathname); return; }
     if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
     const data = await res.json();
-    // 변형 문제들을 현재 문제 바로 뒤에 삽입
     problems.splice(idx + 1, 0, ...data.variants);
     renderAllProblems();
   } catch (e) {
@@ -173,6 +173,7 @@ btnVariantsAll.addEventListener('click', async () => {
       form.append('problem_json', JSON.stringify(p));
       form.append('n', '3');
       const res = await fetch('/variants', { method: 'POST', body: form });
+      if (res.status === 401) { location.href = '/static/login.html?next=' + encodeURIComponent(location.pathname); return; }
       if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
       const data = await res.json();
       all.push(...data.variants);
