@@ -17,6 +17,7 @@ from app.variants import generate_variants
 from app.db import init_db, increment_variants
 from app.routes_db import router as db_router
 from app.routes_auth import router as auth_router
+from app.routes_import import router as import_router
 from app.auth import FREE_DAILY_LIMIT, get_current_user_optional
 
 log = logging.getLogger("mathweb")
@@ -27,6 +28,7 @@ logging.getLogger("fpdf").setLevel(logging.WARNING)
 app = FastAPI(title="수학 시험지 생성기", version="0.3")
 app.include_router(db_router)
 app.include_router(auth_router)
+app.include_router(import_router)
 
 # ── 정적 파일 ───────────────────────────────────────────────────────
 _STATIC = Path(__file__).parent.parent / "static"

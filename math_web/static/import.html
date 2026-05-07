@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF 일괄 입력 — 수학 시험지 생성기</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { accent: '#d97706', surface: '#fafaf9', border: '#e5e7eb' },
+          fontFamily: { sans: ['"Noto Sans KR"', 'ui-sans-serif', 'system-ui'] },
+        },
+      },
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="bg-surface text-gray-800 min-h-screen font-sans antialiased">
+
+  <header class="border-b border-border bg-white sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto px-6 h-14 flex items-center gap-6">
+      <span class="font-semibold text-gray-900 tracking-tight">수학 시험지 생성기</span>
+      <nav class="flex gap-4 text-sm text-gray-500">
+        <a href="/static/index.html" class="hover:text-gray-900">시험지 생성</a>
+        <a href="/static/db.html" class="hover:text-gray-900">문제 검색</a>
+        <a href="/static/admin.html" class="hover:text-gray-900">기출 입력</a>
+        <a href="/static/import.html" class="text-accent font-medium">PDF 일괄 입력</a>
+      </nav>
+      <div id="auth-area" class="ml-auto flex items-center gap-3 text-sm"></div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-8 space-y-6">
+
+    <!-- ── Phase 1: 업로드 ──────────────────────────────── -->
+    <div id="phase-upload">
+      <h1 class="text-lg font-semibold text-gray-900 mb-4">PDF 일괄 입력</h1>
+
+      <div class="bg-white border border-border rounded-xl p-6 space-y-5">
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">연도 *</label>
+            <input id="f-year" type="number" min="1994" max="2030" placeholder="2024"
+                   class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">시험 *</label>
+            <select id="f-exam-type"
+                    class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+              <option value="">선택</option>
+              <option value="수능">수능</option>
+              <option value="6월">6월</option>
+              <option value="9월">9월</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button id="btn-analyze"
+                    class="w-full py-2 rounded-lg bg-accent text-white text-sm font-semibold
+                           hover:bg-amber-700 transition-colors disabled:opacity-40">
+              분석 시작
+            </button>
+          </div>
+        </div>
+
+        <label id="drop-zone"
+               class="flex flex-col items-center justify-center gap-3 border-2 border-dashed
+                      border-border rounded-xl p-10 cursor-pointer hover:border-accent
+                      hover:bg-amber-50 transition-colors">
+          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+          </svg>
+          <div class="text-center">
+            <p class="text-sm text-gray-600 font-medium">PDF 파일을 드래그하거나 클릭해서 선택</p>
+            <p class="text-xs text-gray-400 mt-1">수능·모의고사 시험지 PDF · 최대 50MB</p>
+          </div>
+          <div id="file-name" class="hidden text-sm text-accent font-medium"></div>
+          <input type="file" id="file-input" accept=".pdf" class="hidden" />
+        </label>
+
+      </div>
+
+      <!-- 진행 상태 -->
+      <div id="analyze-progress" class="hidden mt-4 bg-white border border-border rounded-xl px-6 py-4">
+        <div class="flex items-center gap-3">
+          <svg class="animate-spin w-5 h-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+          </svg>
+          <div>
+            <p id="progress-text" class="text-sm font-medium text-gray-700">분석 중...</p>
+            <p class="text-xs text-gray-400 mt-0.5">페이지당 약 10~20초 소요됩니다</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Phase 2: 검토 ────────────────────────────────── -->
+    <div id="phase-review" class="hidden space-y-4">
+
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">
+          추출된 문제 <span id="total-count" class="text-accent">0</span>개 — 단원·난이도 확인 후 저장
+        </h2>
+        <button id="btn-back" class="text-sm text-gray-400 hover:text-gray-700">← 다시 업로드</button>
+      </div>
+
+      <!-- 일괄 설정 -->
+      <div class="bg-white border border-border rounded-xl px-5 py-3 flex flex-wrap items-center gap-4">
+        <span class="text-xs font-semibold text-gray-600">일괄 적용</span>
+        <select id="bulk-unit"
+                class="border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+          <option value="">단원 선택</option>
+          <option value="대수">대수</option>
+          <option value="미적분1">미적분1</option>
+          <option value="미적분2">미적분2</option>
+          <option value="확률과통계">확률과통계</option>
+          <option value="기하">기하</option>
+        </select>
+        <select id="bulk-diff"
+                class="border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+          <option value="">난이도 선택</option>
+          <option value="상">상</option>
+          <option value="중">중</option>
+          <option value="하">하</option>
+        </select>
+        <button id="btn-bulk-apply"
+                class="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-xs font-medium hover:bg-gray-700 transition-colors">
+          선택 문제에 적용
+        </button>
+        <label class="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer ml-auto">
+          <input type="checkbox" id="chk-select-all" class="accent-amber-600 w-4 h-4" />
+          전체 선택
+        </label>
+        <button id="btn-save-all"
+                class="px-5 py-2 rounded-lg bg-accent text-white text-sm font-semibold
+                       hover:bg-amber-700 transition-colors disabled:opacity-40">
+          전체 저장
+        </button>
+      </div>
+
+      <!-- 문제 목록 -->
+      <div id="review-list" class="space-y-3"></div>
+
+      <div class="flex justify-end pt-2">
+        <button id="btn-save-all-bottom"
+                class="px-6 py-2.5 rounded-lg bg-accent text-white text-sm font-semibold
+                       hover:bg-amber-700 transition-colors">
+          전체 저장
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── Phase 3: 완료 ────────────────────────────────── -->
+    <div id="phase-done" class="hidden text-center py-16">
+      <p class="text-4xl mb-3">✅</p>
+      <p class="text-lg font-semibold text-gray-900 mb-1"><span id="saved-count">0</span>개 문제 저장 완료</p>
+      <p class="text-sm text-gray-400 mb-6">문제 검색에서 확인하거나 시험지를 바로 구성하세요.</p>
+      <div class="flex gap-3 justify-center">
+        <a href="/static/db.html"
+           class="px-5 py-2 rounded-lg border border-border text-sm hover:bg-gray-100 transition-colors">
+          문제 검색 →
+        </a>
+        <a href="/static/index.html"
+           class="px-5 py-2 rounded-lg bg-accent text-white text-sm font-semibold hover:bg-amber-700 transition-colors">
+          시험지 생성 →
+        </a>
+        <button id="btn-import-more"
+                class="px-5 py-2 rounded-lg border border-border text-sm hover:bg-gray-100 transition-colors">
+          추가 입력
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/static/import.js"></script>
+  <script src="/static/auth-header.js"></script>
+</body>
+</html>
