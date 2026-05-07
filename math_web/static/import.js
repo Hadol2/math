@@ -25,6 +25,7 @@ const savedCountEl  = document.getElementById('saved-count');
 const btnImportMore = document.getElementById('btn-import-more');
 
 let problems = [];
+let selectedFile = null;
 
 // ── File selection ────────────────────────────────────────────────
 dropZone.addEventListener('click', () => fileInput.click());
@@ -39,6 +40,7 @@ dropZone.addEventListener('drop', e => {
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
 
 function setFile(f) {
+  selectedFile = f;
   fileNameDiv.textContent = f.name;
   fileNameDiv.classList.remove('hidden');
 }
@@ -47,7 +49,7 @@ function setFile(f) {
 btnAnalyze.addEventListener('click', async () => {
   const year = document.getElementById('f-year').value.trim();
   const examType = document.getElementById('f-exam-type').value;
-  const file = fileInput.files[0];
+  const file = selectedFile || fileInput.files[0];
 
   if (!year || !examType) return alert('연도와 시험을 선택해 주세요.');
   if (!file) return alert('PDF 파일을 선택해 주세요.');
@@ -208,5 +210,6 @@ btnImportMore.addEventListener('click', () => {
   fileInput.value = '';
   fileNameDiv.classList.add('hidden');
   fileNameDiv.textContent = '';
+  selectedFile = null;
   problems = [];
 });
