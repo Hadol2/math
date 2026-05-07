@@ -1,10 +1,11 @@
 """기출문제 DB API 라우터."""
 
+import random
 import uuid
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import JSONResponse
 
 from app.db import (
@@ -116,8 +117,61 @@ def remove_problem(problem_id: int):
     p = get_problem(problem_id)
     if not p:
         raise HTTPException(404, "문제를 찾을 수 없습니다")
-    # 이미지 파일 삭제
     img_path = Path(__file__).parent.parent / p["image_path"].lstrip("/")
     if img_path.exists():
         img_path.unlink()
     delete_problem(problem_id)
+
+
+# ── 자동 시험지 구성 ──────────────────────────────────────────────────
+
+@router.post("/compose")
+def compose_exam(body: dict = Body(...)):
+    """
+    범위·난이도 비율 기반 자동 문제 구성.
+    body: {
+      units: ["대수", ...],          # 빈 배열 = 전체
+      year_from: 2020,               # optional
+      year_to: 2026,                 # optional
+      difficulty_ratio: {상:30, 중:50, 하:20},  # 합계 100
+      n_total: 30,
+    }
+    """
+    units       = body.get("units", [])
+    year_from   = body.get("year_from")
+    year_to     = body.get("year_to")
+    ratio       = body.get("difficulty_ratio", {"상": 34, "중": 33, "하": 33})
+    n_total     = int(body.get("n_total", 30))
+
+    # 각 난이도별 목표 문항 수 계산
+    diffs  = ["상", "중", "하"]
+    totals = {d: round(n_total * ratio.get(d, 0) / 100) for d in diffs}
+    # 반올림 오차 보정
+    diff = n_total - sum(totals.values())
+    totals["중"] += diff
+
+    selected   = []
+    shortfalls = {}
+
+    for d in diffs:
+        needed = totals[d]
+        if needed <= 0:
+            continue
+        pool, _ = list_problems(difficulty=d, limit=2000)
+        if units:
+            pool = [p for p in pool if p.get("unit") in units]
+        if year_from:
+            pool = [p for p in pool if (p.get("year") or 0) >= year_from]
+        if year_to:
+            pool = [p for p in pool if (p.get("year") or 0) <= year_to]
+
+        random.shuffle(pool)
+        picked = pool[:needed]
+        selected.extend(picked)
+
+        if len(picked) < needed:
+            shortfalls[d] = {"needed": needed, "available": len(picked)}
+
+    # 문항 번호 순서로 정렬 (연도 desc, 번호 asc)
+    selected.sort(key=lambda p: (-p.get("year", 0), p.get("number", 0)))
+    return {"problems": selected, "shortfalls": shortfalls}

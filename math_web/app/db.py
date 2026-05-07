@@ -7,7 +7,7 @@ from typing import Any, Optional
 
 DB_PATH = Path(__file__).parent.parent / "data" / "problems.db"
 
-UNITS = ["수학I", "수학II", "미적분", "확률과통계", "기하"]
+UNITS = ["대수", "미적분1", "미적분2", "확률과통계", "기하"]
 DIFFICULTIES = ["상", "중", "하"]
 EXAM_TYPES = ["수능", "6월", "9월"]
 

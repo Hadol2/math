@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>수학 시험지 생성기</title>
+  <title>시험지 생성 — 수학 시험지 생성기</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            accent: '#d97706',   /* amber-600 */
+            accent: '#d97706',
             surface: '#fafaf9',
             border: '#e5e7eb',
           },
           fontFamily: {
             sans: ['"Noto Sans KR"', 'ui-sans-serif', 'system-ui'],
-            mono: ['"JetBrains Mono"', 'ui-monospace'],
           },
         },
       },
@@ -29,8 +28,8 @@
 <body class="bg-surface text-gray-800 min-h-screen font-sans antialiased">
 
   <!-- 헤더 -->
-  <header class="border-b border-border bg-white sticky top-0 z-10">
-    <div class="max-w-4xl mx-auto px-6 h-14 flex items-center gap-6">
+  <header class="border-b border-border bg-white sticky top-0 z-20">
+    <div class="max-w-7xl mx-auto px-6 h-14 flex items-center gap-6">
       <span class="font-semibold text-gray-900 tracking-tight">수학 시험지 생성기</span>
       <nav class="flex gap-4 text-sm text-gray-500">
         <a href="/static/index.html" class="text-accent font-medium">시험지 생성</a>
@@ -38,139 +37,311 @@
         <a href="/static/admin.html" class="hover:text-gray-900">기출 입력</a>
       </nav>
       <div id="auth-area" class="ml-auto flex items-center gap-3 text-sm"></div>
-      <a href="#" id="btn-download-pdf"
-         class="hidden px-4 py-1.5 rounded-lg bg-accent text-white text-sm font-medium
-                hover:bg-amber-700 transition-colors">
-        PDF 다운로드
-      </a>
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto px-6 py-10 space-y-10">
+  <main class="max-w-7xl mx-auto px-6 py-6 flex gap-6 min-h-[calc(100vh-3.5rem)]">
 
-    <!-- ① 이미지 업로드 -->
-    <section>
-      <h2 class="text-base font-semibold text-gray-700 mb-3">① 시험지 이미지 업로드</h2>
-      <label id="drop-zone"
-             class="flex flex-col items-center justify-center gap-3 border-2 border-dashed
-                    border-border rounded-xl p-10 cursor-pointer hover:border-accent
-                    hover:bg-amber-50 transition-colors">
-        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
-        </svg>
-        <span class="text-sm text-gray-500">이미지를 드래그하거나 클릭해서 선택</span>
-        <span class="text-xs text-gray-400">JPG, PNG, WEBP · 최대 20MB</span>
-        <input type="file" id="file-input" accept="image/*" class="hidden" />
-      </label>
-      <div id="preview-container" class="hidden mt-4 flex gap-3 flex-wrap"></div>
-      <button id="btn-extract"
-              class="hidden mt-4 px-5 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium
-                     hover:bg-gray-700 transition-colors disabled:opacity-40">
-        문제 추출
-      </button>
-    </section>
+    <!-- ── 왼쪽: 설정 패널 ──────────────────────────────────────── -->
+    <aside class="w-72 shrink-0 space-y-4">
 
-    <!-- 스피너 -->
-    <div id="spinner" class="hidden flex items-center gap-3 text-sm text-gray-500">
-      <svg class="animate-spin w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-      </svg>
-      <span id="spinner-text">처리 중...</span>
-    </div>
-
-    <!-- ② 문제 목록 -->
-    <section id="problems-section" class="hidden">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-base font-semibold text-gray-700">② 문제 확인 · 편집</h2>
-        <button id="btn-add-problem"
-                class="text-xs text-accent hover:underline">+ 문제 추가</button>
+      <!-- 소스 탭 -->
+      <div class="flex rounded-xl border border-border bg-white overflow-hidden text-sm font-medium">
+        <button id="tab-db-btn"
+                class="flex-1 py-2.5 text-white bg-gray-900 transition-colors">
+          문제은행
+        </button>
+        <button id="tab-img-btn"
+                class="flex-1 py-2.5 text-gray-500 hover:bg-gray-50 transition-colors">
+          이미지 업로드
+        </button>
       </div>
+
+      <!-- ── 문제은행 탭 ─────────────────────────────────── -->
+      <div id="tab-db" class="space-y-4">
+
+        <!-- 시험 형식 -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-2">시험 형식</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button data-fmt="suneung"
+                    class="fmt-btn py-2 rounded-lg border text-xs font-medium transition-colors border-gray-900 bg-gray-900 text-white">
+              수능형
+            </button>
+            <button data-fmt="naeshin"
+                    class="fmt-btn py-2 rounded-lg border text-xs font-medium transition-colors border-border text-gray-600 hover:bg-gray-50">
+              내신형
+            </button>
+            <button data-fmt="custom"
+                    class="fmt-btn py-2 rounded-lg border text-xs font-medium transition-colors border-border text-gray-600 hover:bg-gray-50">
+              커스텀
+            </button>
+          </div>
+        </div>
+
+        <!-- 형식별 문항 설정 -->
+        <div id="fmt-suneung-config" class="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 text-xs text-amber-800">
+          총 30문항 · 선택형 21 + 단답형 9
+        </div>
+
+        <div id="fmt-naeshin-config" class="hidden space-y-2">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">선택형</label>
+              <div class="flex items-center gap-1">
+                <input id="n-choice" type="number" min="0" max="50" value="20"
+                       class="w-full border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+                <span class="text-xs text-gray-400 shrink-0">문항</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">서술형</label>
+              <div class="flex items-center gap-1">
+                <input id="n-essay" type="number" min="0" max="20" value="4"
+                       class="w-full border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+                <span class="text-xs text-gray-400 shrink-0">문항</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="fmt-custom-config" class="hidden">
+          <label class="block text-xs text-gray-500 mb-1">총 문항 수</label>
+          <div class="flex items-center gap-1">
+            <input id="n-custom" type="number" min="1" max="100" value="30"
+                   class="w-full border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+            <span class="text-xs text-gray-400 shrink-0">문항</span>
+          </div>
+        </div>
+
+        <!-- 단원 -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-semibold text-gray-600">단원</label>
+            <button id="btn-unit-all" class="text-xs text-accent hover:underline">전체</button>
+          </div>
+          <div class="space-y-1.5" id="unit-checks">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" value="대수" class="unit-chk accent-amber-600 w-4 h-4" checked />대수
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" value="미적분1" class="unit-chk accent-amber-600 w-4 h-4" checked />미적분1
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" value="미적분2" class="unit-chk accent-amber-600 w-4 h-4" checked />미적분2
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" value="확률과통계" class="unit-chk accent-amber-600 w-4 h-4" checked />확률과통계
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" value="기하" class="unit-chk accent-amber-600 w-4 h-4" checked />기하
+            </label>
+          </div>
+        </div>
+
+        <!-- 연도 범위 -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-2">연도 범위</label>
+          <div class="flex items-center gap-2">
+            <select id="year-from"
+                    class="flex-1 border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+            </select>
+            <span class="text-xs text-gray-400">~</span>
+            <select id="year-to"
+                    class="flex-1 border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+            </select>
+          </div>
+        </div>
+
+        <!-- 난이도 비율 -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-semibold text-gray-600">난이도 비율</label>
+            <span id="ratio-total" class="text-xs text-gray-400">합계: <b>100</b>%</span>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-red-500 font-medium w-4">상</span>
+              <input id="ratio-high" type="number" min="0" max="100" value="30"
+                     class="w-16 border border-border rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-accent/40" />
+              <span class="text-xs text-gray-400">%</span>
+              <div class="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+                <div id="bar-high" class="h-full bg-red-400 transition-all" style="width:30%"></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-amber-500 font-medium w-4">중</span>
+              <input id="ratio-mid" type="number" min="0" max="100" value="50"
+                     class="w-16 border border-border rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-accent/40" />
+              <span class="text-xs text-gray-400">%</span>
+              <div class="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+                <div id="bar-mid" class="h-full bg-amber-400 transition-all" style="width:50%"></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-green-600 font-medium w-4">하</span>
+              <input id="ratio-low" type="number" min="0" max="100" value="20"
+                     class="w-16 border border-border rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-accent/40" />
+              <span class="text-xs text-gray-400">%</span>
+              <div class="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+                <div id="bar-low" class="h-full bg-green-400 transition-all" style="width:20%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-auto-compose"
+                class="w-full py-2.5 rounded-xl bg-accent text-white text-sm font-semibold
+                       hover:bg-amber-700 transition-colors disabled:opacity-40">
+          자동 구성
+        </button>
+
+        <!-- 부족 경고 -->
+        <div id="shortfall-box" class="hidden bg-amber-50 border border-amber-200 rounded-xl px-3 py-3 text-xs space-y-1">
+          <p class="font-semibold text-amber-800">⚠ 문제 부족</p>
+          <div id="shortfall-list" class="text-amber-700 space-y-0.5"></div>
+          <a href="/static/admin.html" class="text-accent hover:underline mt-1 block">기출 추가하러 가기 →</a>
+        </div>
+
+      </div><!-- /tab-db -->
+
+      <!-- ── 이미지 업로드 탭 ────────────────────────────── -->
+      <div id="tab-img" class="hidden space-y-3">
+        <label id="drop-zone"
+               class="flex flex-col items-center justify-center gap-2 border-2 border-dashed
+                      border-border rounded-xl p-8 cursor-pointer hover:border-accent
+                      hover:bg-amber-50 transition-colors">
+          <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+          </svg>
+          <span class="text-sm text-gray-500 text-center">시험지 이미지를 드래그하거나 클릭</span>
+          <span class="text-xs text-gray-400">JPG · PNG · WEBP · 최대 20MB</span>
+          <input type="file" id="file-input" accept="image/*" class="hidden" />
+        </label>
+
+        <div id="upload-preview" class="hidden">
+          <img id="preview-img" src="" alt="" class="w-full rounded-xl border border-border object-contain max-h-40 bg-gray-50" />
+        </div>
+
+        <button id="btn-extract"
+                class="hidden w-full py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold
+                       hover:bg-gray-700 transition-colors disabled:opacity-40">
+          문제 추출
+        </button>
+        <p class="text-xs text-gray-400 text-center">AI가 이미지에서 문제를 자동으로 인식합니다</p>
+      </div>
+
+    </aside>
+
+    <!-- ── 오른쪽: 시험지 구성 ──────────────────────────────────── -->
+    <div class="flex-1 min-w-0 flex flex-col gap-4">
 
       <!-- 시험지 메타 -->
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div>
-          <label class="block text-xs text-gray-500 mb-1">제목</label>
-          <input id="exam-title" type="text" placeholder="예) 3학년 1학기 수학 시험"
-                 class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none
-                        focus:ring-2 focus:ring-accent/40" />
-        </div>
-        <div>
-          <label class="block text-xs text-gray-500 mb-1">부제 (선택)</label>
-          <input id="exam-subtitle" type="text" placeholder="예) 선택형 16문항 / 서술형 8문항"
-                 class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none
-                        focus:ring-2 focus:ring-accent/40" />
+      <div class="bg-white border border-border rounded-xl px-5 py-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">제목</label>
+            <input id="exam-title" type="text" placeholder="수학 시험지"
+                   class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">부제 (선택)</label>
+            <input id="exam-subtitle" type="text" placeholder="선택형 ○문항 / 서술형 ○문항"
+                   class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
+          </div>
         </div>
       </div>
 
-      <div id="problem-list" class="space-y-3"></div>
-
-      <!-- 변형 + PDF 버튼 -->
-      <div class="flex gap-3 mt-6">
-        <button id="btn-variants-all"
-                class="px-5 py-2 rounded-lg border border-border text-sm font-medium
-                       hover:bg-gray-100 transition-colors">
-          전체 변형 생성 (×3)
-        </button>
-        <button id="btn-pdf-preview"
-                class="px-5 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium
-                       hover:bg-gray-700 transition-colors">
-          시험지 PDF 생성
-        </button>
-        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-          <input type="checkbox" id="chk-answers" class="accent-amber-600 w-4 h-4" />
-          정답지 포함
-        </label>
+      <!-- 스피너 -->
+      <div id="spinner" class="hidden flex items-center gap-3 text-sm text-gray-500 bg-white border border-border rounded-xl px-5 py-3">
+        <svg class="animate-spin w-5 h-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+        </svg>
+        <span id="spinner-text">처리 중...</span>
       </div>
-    </section>
 
+      <!-- 문제 목록 헤더 -->
+      <div class="flex items-center justify-between">
+        <p class="text-sm font-semibold text-gray-700">
+          구성된 문제 <span id="prob-count" class="text-accent">0</span>개
+        </p>
+        <div class="flex gap-3 items-center">
+          <label class="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer">
+            <input type="checkbox" id="chk-answers" class="accent-amber-600 w-4 h-4" />
+            정답지 포함
+          </label>
+          <button id="btn-variants-all"
+                  class="px-3 py-1.5 rounded-lg border border-border text-xs font-medium
+                         hover:bg-gray-100 transition-colors">
+            전체 변형
+          </button>
+          <button id="btn-pdf"
+                  class="px-4 py-1.5 rounded-lg bg-accent text-white text-xs font-semibold
+                         hover:bg-amber-700 transition-colors">
+            PDF 생성
+          </button>
+        </div>
+      </div>
+
+      <!-- 빈 상태 -->
+      <div id="empty-composer"
+           class="flex-1 flex flex-col items-center justify-center text-gray-400 py-20 text-center">
+        <p class="text-4xl mb-3">📋</p>
+        <p class="text-sm">왼쪽에서 문제를 추가하세요</p>
+        <p class="text-xs mt-1 text-gray-300">문제은행 자동 구성 또는 이미지 업로드</p>
+      </div>
+
+      <!-- 문제 카드 리스트 -->
+      <div id="compose-list" class="space-y-2"></div>
+
+      <!-- 수동 추가 버튼 -->
+      <button id="btn-add-problem"
+              class="w-full py-2 rounded-xl border-2 border-dashed border-border
+                     text-sm text-gray-400 hover:border-accent hover:text-accent transition-colors">
+        + 문제 직접 입력
+      </button>
+
+    </div>
   </main>
 
-  <!-- 문제 카드 템플릿 -->
-  <template id="problem-card-tpl">
-    <div class="problem-card border border-border rounded-xl bg-white p-5 space-y-3">
-      <div class="flex items-start justify-between gap-3">
-        <span class="prob-num text-sm font-semibold text-gray-500 mt-0.5 shrink-0"></span>
-        <div class="flex-1 space-y-2">
-          <!-- type + score -->
-          <div class="flex gap-2">
-            <select class="field-type border border-border rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-accent/40">
-              <option value="선택형">선택형</option>
-              <option value="서술형">서술형</option>
-            </select>
-            <input class="field-score w-16 border border-border rounded-md px-2 py-1 text-xs
-                          focus:outline-none focus:ring-2 focus:ring-accent/40"
-                   type="number" min="1" max="20" placeholder="배점" />
-          </div>
-          <!-- 본문 -->
-          <textarea class="field-text w-full border border-border rounded-lg px-3 py-2 text-sm
-                           resize-none focus:outline-none focus:ring-2 focus:ring-accent/40"
-                    rows="2" placeholder="문제 본문"></textarea>
-          <!-- LaTeX -->
-          <input class="field-latex w-full border border-border rounded-lg px-3 py-2 text-sm font-mono
+  <!-- 문제 카드 템플릿 (직접 입력용) -->
+  <template id="manual-card-tpl">
+    <div class="manual-card bg-white border border-border rounded-xl p-4 space-y-2.5">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex gap-2">
+          <select class="field-type border border-border rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-accent/40">
+            <option value="선택형">선택형</option>
+            <option value="서술형">서술형</option>
+            <option value="단답형">단답형</option>
+          </select>
+          <input class="field-score w-16 border border-border rounded-md px-2 py-1 text-xs
                         focus:outline-none focus:ring-2 focus:ring-accent/40"
-                 type="text" placeholder="수식 (LaTeX, 선택 사항)" />
-          <!-- 보기 (선택형에만 표시) -->
-          <div class="choices-block space-y-1">
-            <div class="text-xs text-gray-400 mb-1">보기</div>
-            <div class="grid grid-cols-1 gap-1 choices-list"></div>
-          </div>
-          <!-- 정답 -->
-          <input class="field-answer w-full border border-border rounded-lg px-3 py-2 text-sm
-                        focus:outline-none focus:ring-2 focus:ring-accent/40"
-                 type="text" placeholder="정답 (예: ②, x=√17)" />
+                 type="number" min="1" max="20" placeholder="배점" value="3" />
         </div>
-        <!-- 카드 액션 버튼 -->
-        <div class="flex flex-col gap-1 shrink-0">
-          <button class="btn-variant text-xs text-accent hover:underline whitespace-nowrap">변형</button>
-          <button class="btn-delete text-xs text-gray-400 hover:text-red-500 transition-colors">삭제</button>
+        <div class="flex gap-2 text-xs">
+          <button class="btn-variant text-accent hover:underline">변형</button>
+          <button class="btn-remove text-gray-400 hover:text-red-500">삭제</button>
         </div>
       </div>
+      <textarea class="field-text w-full border border-border rounded-lg px-3 py-2 text-sm
+                       resize-none focus:outline-none focus:ring-2 focus:ring-accent/40"
+                rows="2" placeholder="문제 본문"></textarea>
+      <input class="field-latex w-full border border-border rounded-lg px-3 py-2 text-sm font-mono
+                    focus:outline-none focus:ring-2 focus:ring-accent/40"
+             type="text" placeholder="수식 (LaTeX 선택 사항)" />
+      <div class="choices-block space-y-1">
+        <div class="text-xs text-gray-400">보기</div>
+        <div class="space-y-1 choices-list"></div>
+      </div>
+      <input class="field-answer w-full border border-border rounded-lg px-3 py-2 text-sm
+                    focus:outline-none focus:ring-2 focus:ring-accent/40"
+             type="text" placeholder="정답 (예: ②, x=√17)" />
     </div>
   </template>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/composer.js"></script>
   <script src="/static/auth-header.js"></script>
 </body>
 </html>
