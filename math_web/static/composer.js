@@ -54,38 +54,54 @@ fmtBtns.forEach(btn => {
 });
 
 function updateDefaultRatio() {
-  if (currentFmt === 'suneung') {
-    document.getElementById('ratio-high').value = 30;
-    document.getElementById('ratio-mid').value  = 50;
-    document.getElementById('ratio-low').value  = 20;
-  } else {
-    document.getElementById('ratio-high').value = 33;
-    document.getElementById('ratio-mid').value  = 34;
-    document.getElementById('ratio-low').value  = 33;
-  }
-  updateRatioBars();
+  // 형식 바꿔도 난이도 프리셋은 유지 (사용자가 별도로 선택)
 }
 
-// ── 난이도 비율 바 ───────────────────────────────────────────────────
-const ratioHigh = document.getElementById('ratio-high');
-const ratioMid  = document.getElementById('ratio-mid');
-const ratioLow  = document.getElementById('ratio-low');
-const ratioTotal = document.getElementById('ratio-total');
+// ── 난이도 프리셋 ────────────────────────────────────────────────────
+let diffH = 30, diffM = 50, diffL = 20;
 
-function updateRatioBars() {
-  const h = parseInt(ratioHigh.value) || 0;
-  const m = parseInt(ratioMid.value)  || 0;
-  const l = parseInt(ratioLow.value)  || 0;
-  const total = h + m + l;
-  document.getElementById('bar-high').style.width = h + '%';
-  document.getElementById('bar-mid').style.width  = m + '%';
-  document.getElementById('bar-low').style.width  = l + '%';
-  const totalEl = ratioTotal.querySelector('b');
-  totalEl.textContent = total;
-  totalEl.className   = total === 100 ? 'text-gray-700' : 'text-red-500';
+const ratioDisplay     = document.getElementById('ratio-display');
+const customRatioInputs = document.getElementById('custom-ratio-inputs');
+const ratioHigh        = document.getElementById('ratio-high');
+const ratioMid         = document.getElementById('ratio-mid');
+const ratioLow         = document.getElementById('ratio-low');
+const ratioTotal       = document.getElementById('ratio-total');
+
+function applyPreset(h, m, l) {
+  diffH = h; diffM = m; diffL = l;
+  ratioHigh.value = h; ratioMid.value = m; ratioLow.value = l;
+  ratioDisplay.innerHTML =
+    `<span class="text-red-400">상 ${h}%</span> · <span class="text-amber-400">중 ${m}%</span> · <span class="text-green-500">하 ${l}%</span>`;
 }
 
-[ratioHigh, ratioMid, ratioLow].forEach(el => el.addEventListener('input', updateRatioBars));
+document.querySelectorAll('.diff-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.diff-preset').forEach(b => {
+      b.className = 'diff-preset py-2 rounded-lg border text-xs font-medium transition-colors border-border text-gray-600 hover:bg-gray-50';
+    });
+    btn.className = 'diff-preset py-2 rounded-lg border text-xs font-medium transition-colors border-gray-900 bg-gray-900 text-white';
+
+    if (btn.id === 'diff-custom-btn') {
+      customRatioInputs.classList.remove('hidden');
+      ratioDisplay.classList.add('hidden');
+    } else {
+      customRatioInputs.classList.add('hidden');
+      ratioDisplay.classList.remove('hidden');
+      applyPreset(parseInt(btn.dataset.h), parseInt(btn.dataset.m), parseInt(btn.dataset.l));
+    }
+  });
+});
+
+function updateCustomRatio() {
+  diffH = parseInt(ratioHigh.value) || 0;
+  diffM = parseInt(ratioMid.value)  || 0;
+  diffL = parseInt(ratioLow.value)  || 0;
+  const total = diffH + diffM + diffL;
+  const b = ratioTotal.querySelector('b');
+  b.textContent = total;
+  b.className   = total === 100 ? 'text-gray-700' : 'text-red-500';
+}
+[ratioHigh, ratioMid, ratioLow].forEach(el => el.addEventListener('input', updateCustomRatio));
 
 // ── 단원 전체 선택 ───────────────────────────────────────────────────
 document.getElementById('btn-unit-all').addEventListener('click', () => {
@@ -118,10 +134,8 @@ function calcNTotal() {
 }
 
 document.getElementById('btn-auto-compose').addEventListener('click', async () => {
-  const h = parseInt(ratioHigh.value) || 0;
-  const m = parseInt(ratioMid.value)  || 0;
-  const l = parseInt(ratioLow.value)  || 0;
-  if (h + m + l !== 100) { alert('난이도 비율 합계가 100%여야 합니다.'); return; }
+  const h = diffH, m = diffM, l = diffL;
+  if (h + m + l !== 100) { alert('난이도 비율 합계가 100%여야 합니다.\n(커스텀 모드에서 상·중·하 합계를 100%로 맞춰주세요)'); return; }
 
   const units = [...document.querySelectorAll('.unit-chk:checked')].map(c => c.value);
   const nTotal = calcNTotal();
@@ -434,5 +448,5 @@ function hideSpinner() {
   spinner.classList.add('hidden');
 }
 
-// 초기 바 렌더
-updateRatioBars();
+// 초기 비율 표시 (표준 기본값)
+applyPreset(30, 50, 20);
