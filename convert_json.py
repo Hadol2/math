@@ -175,7 +175,7 @@ def convert_essay(prob: dict) -> dict:
 # ── 메인 변환 ───────────────────────────────────────────────────────
 
 def main():
-    src = '/Users/janghayeon/Desktop/math/exam_variants.json'
+    src = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'exam_variants.json')
     with open(src, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
@@ -183,7 +183,7 @@ def main():
     title = meta.get('title', '수학 시험지')
     sets  = data.get('sets', [])
 
-    out_dir = '/Users/janghayeon/Desktop/math'
+    out_dir = os.path.dirname(os.path.abspath(__file__))
     created = []
 
     for s in sets:

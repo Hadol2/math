@@ -155,13 +155,13 @@ def convert_set(set_data: dict) -> list:
 
 
 def main():
-    src = '/Users/janghayeon/Desktop/math/exam_problems.json'
+    src = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'exam_problems.json')
     with open(src, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     title    = data.get('제목', '수학II 모의고사')
     subtitle = data.get('구성', '')
-    out_dir  = '/Users/janghayeon/Desktop/math'
+    out_dir  = os.path.dirname(os.path.abspath(__file__))
 
     for set_name in ['세트A', '세트B']:
         if set_name not in data:

@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.pyc
+.env
+
+# 생성물
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.zip
+*.docx
+set[0-9]*.json
+exam[A-Z].json
